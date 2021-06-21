@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# A script that prints "To infinity and beyond" indefinitely and
+# "I am invincible" when receiving a SIGTERM signal
+
+echo $$ > holbertonscript.pid
+sudo cp holbertonscript.pid /var/run
+while :
+do
+  echo "To infinity and beyond"
+  trap "echo Y U no love me?!" SIGINT
+  trap "echo I hate the kill command; sudo rm /var/run/holbertonscript.pid; exit" SIGTERM
+  trap "sudo rm /var/run/holbertonscript.pid; exit" SIGQUIT
+  sleep 2
+done
