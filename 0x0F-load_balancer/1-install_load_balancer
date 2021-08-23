@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#Install haproxy and configurate both servers
+apt-get -y update
+apt-get -y install haproxy
+echo -e "\nfrontend front\n\tbind *:80\n\tmode http\n\tdefault_backend back\n\nbackend back\n\tbalance roundrobin\n\tserver 284-web-01 104.196.171.213:80 check\n\tserver 284-web-02 35.231.225.57:80 check" >> /etc/haproxy/haproxy.cfg
+service haproxy restart
