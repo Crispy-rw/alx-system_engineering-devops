@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# configure web-02 server to be identical to web-01 server
+sudo apt-get -y update
+sudo apt-get -y install nginx
+echo "Holberton School second server" > /var/www/html/index.nginx-debian.html
+HTTP_H="server_name _;\n\tadd_header X-Served-By $HOSTNAME;"
+sudo sed -i "s/server_name _;/$HTTP_H/" /etc/nginx/sites-available/default
+sudo service nginx restart
