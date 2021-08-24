@@ -1,5 +1,32 @@
-#creating a custom HTTP header response
-exec {'HTTP_Header':
-  command  => 'apt-get -y update && apt-get -y install nginx && echo "Holberton School second server" > /var/www/html/index.nginx-debian.html && HTTP_H="server_name _;\n\tadd_header X-Served-By $HOSTNAME;" && sed -i "s/server_name _;/$HTTP_H/" /etc/nginx/sites-available/default && service nginx restart',
-  provider => shell,
+# Automate Create a server and Add a custom HTTP header with Puppet
+
+exec { 'Update':
+  path     => ['/usr/bin', '/sbin', '/bin', '/usr/sbin'],
+  command  => 'sudo apt-get update -y',
+  provider => 'shell',
+  returns  => [0,1],
+}
+
+exec { 'Install_nginx':
+  require  => Exec['Update'],
+  path     => ['/usr/bin', '/sbin', '/bin', '/usr/sbin'],
+  command  => 'sudo apt-get install nginx -y',
+  provider => 'shell',
+  returns  => [0,1],
+}
+
+exec { 'header':
+  require  => Exec['Install_nginx'],
+  path     => ['/usr/bin', '/sbin', '/usr/sbin'],
+  command  => 'sudo sed -i "s/http {/http {\n\tadd_header X-Served-By \$hostname;\n/" /etc/nginx/nginx.conf',
+  provider => 'shell',
+  returns  => [0,1],
+}
+
+exec { 'start_server':
+  require  => Exec['header'],
+  path     => ['/usr/bin', '/sbin', '/bin', '/usr/sbin'],
+  command  => 'sudo service nginx start',
+  provider => 'shell',
+  returns  => [0,1],
 }
