@@ -16,22 +16,15 @@ if __name__ == "__main__":
     req_user = requests.get(
         'https://jsonplaceholder.typicode.com/users').json()
 
-    with open('todo_all_employees.json', mode='w') as json_file:
+    for user in req_user:
+        taskList = []
+        for task in req_todos:
+            if task.get('userId') == user.get('id'):
+                taskDict = {"username": user.get('username'),
+                            "task": task.get('title'),
+                            "completed": task.get('completed')}
+                taskList.append(taskDict)
+        todoAll[user.get('id')] = taskList
 
-        jsonfile = {}
-
-        for i in req_user:
-            USER_ID = i.get('id')
-            jsonfile[USER_ID] = []
-
-            for j in req_todos:
-                if USER_ID == j.get('userId'):
-                    USERNAME = i.get('username')
-                    TASK_COMPLETED_S = j.get('completed')
-                    TASK_TITLE = j.get('title')
-
-                    jsonfile[USER_ID].append({'task': TASK_TITLE,
-                                              'completed': TASK_COMPLETED_S,
-                                              'username': USERNAME})
-
-        json.dump(jsonfile, json_file)
+    with open('todo_all_employees.json', mode='w') as f:
+        json.dump(todoAll, f)
