@@ -4,6 +4,7 @@ Using a REST API, for a given employee ID and returns information
 about his/her TODO list progress.
 """
 import csv
+import json
 import requests
 import sys
 
@@ -17,21 +18,25 @@ if __name__ == "__main__":
     req_user = requests.get(
         'https://jsonplaceholder.typicode.com/users').json()
 
-    csv_file = sys.argv[1] + '.csv'
+    j_file = sys.argv[1] + '.json'
 
-    with open(csv_file, mode='w') as export_csv_file:
-        file_to_export = csv.writer(
-            export_csv_file, delimiter=',',
-            quotechar='"', quoting=csv.QUOTE_ALL)
+    with open(j_file, mode='w') as json_file:
+
+        jsonfile = {}
 
         for i in req_user:
             if id_user == i.get('id'):
                 USERNAME = i.get('username')
 
+        lists = []
+
         for j in req_todos:
-            USER_ID = j.get('userId')
             TASK_COMPLETED_STATUS = j.get('completed')
             TASK_TITLE = j.get('title')
             if id_user == j.get('userId'):
-                file_to_export.writerow([
-                     USER_ID, USERNAME, TASK_COMPLETED_STATUS, TASK_TITLE])
+                lists.append({'task': TASK_TITLE,
+                              'completed': TASK_COMPLETED_STATUS,
+                              'username': USERNAME})
+                jsonfile = {id_user: lists}
+
+        json.dump(jsonfile, json_file)
