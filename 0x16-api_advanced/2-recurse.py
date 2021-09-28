@@ -1,25 +1,34 @@
 #!/usr/bin/python3
-"""Reddit client"""
+"""
+Querries the Reddit API and returns a list of the titles of all hot posts
+listed for a given subreddit
+"""
+
+import json
 import requests
 
 
-def recurse(subreddit, hot_list=[], after=""):
-    """Querying Reddit API, and returns all
-    hot articles for a given subreddit."""
-
+def recurse(subreddit, hot_list=[], after=None):
+    """Return a list of the titles of all hot posts listed for a subreddit"""
+    headers = {"user-agent": "holberton"}
+    params = {"after": after}
     url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
-    headers = {'User-Agent': 'API Project by davixcky'}
-    arg1 = {"limit": 100, "after": after}
-    resp = requests.get(url, params=arg1, headers=headers)
-    list_a = resp.json().get('data', {}).get('children', None)
-    pagination = resp.json().get('data', {}).get('after', None)
+    subdata = requests.get(url, headers=headers, params=params)
 
-    if pagination is not None:
-        if list_a:
-            for item in list_a:
-                hot_list.append(item.get("data").get("title"))
-        if pagination is not None:
-            recurse(subreddit, hot_list, pagination)
+    if subdata.status_code != 200:
+        return None
+    data = json.loads(subdata.text).get('data').get('children')
+    after = json.loads(subdata.text).get('data').get('after')
+    if data is None:
+        if len(hot_list) == 0:
+            return None
         return hot_list
     else:
-        return None
+        for item in data:
+            hot_list.append(item.get('data').get('title'))
+    if after is None:
+        if len(hot_list) == 0:
+            return None
+        return hot_list
+    else:
+        return recurse(subreddit, hot_list, after)
